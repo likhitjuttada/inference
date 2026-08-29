@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from attention import CausalSelfAttention
-
+from linear import MLP
 
 class LayerNorm(nn.Module):
     def __init__(self, ndim, bias):
@@ -13,24 +13,7 @@ class LayerNorm(nn.Module):
     def forward(self, x):
         return F.layer_norm(x, self.weight.shape, self.weight, self.bias, 1e-5)
 
-
-class MLP(nn.Module):
-    def __init__(self, config):
-        super().__init__()
-        self.c_fc = nn.Linear(config.n_embd, 4 * config.n_embd, bias=config.bias)
-        self.gelu = nn.GELU()
-        self.c_proj = nn.Linear(4 * config.n_embd, config.n_embd, bias=config.bias)
-        self.dropout = nn.Dropout(config.dropout)
-
-    def forward(self, x):
-        x = self.c_fc(x)
-        x = self.gelu(x)
-        x = self.c_proj(x)
-        x = self.dropout(x)
-        return x
-
-
-class Block(nn.Module):
+class TransformerLayer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.ln_1 = LayerNorm(config.n_embd, bias=config.bias)

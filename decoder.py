@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformer import Block, LayerNorm
+from transformer import TransformerLayer, LayerNorm
 
 
 @dataclass
@@ -28,7 +28,7 @@ class GPT(nn.Module):
             wte=nn.Embedding(config.vocab_size, config.n_embd),
             wpe=nn.Embedding(config.block_size, config.n_embd),
             dropout=nn.Dropout(config.dropout),
-            h=nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+            h=nn.ModuleList([TransformerLayer(config) for _ in range(config.n_layer)]),
             ln_f=LayerNorm(config.n_embd, bias=config.bias),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
